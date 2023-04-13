@@ -20,29 +20,29 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     if (selectedDates[0].getTime() < Date.now()) {
+      console.log(selectedDates);
       Notiflix.Notify.failure('Please choose a date in the future!');
     } else {
       refs.startBtn.removeAttribute('disabled', 'disabled');
-    }
+      refs.startBtn.addEventListener('click', onStart);
 
-    refs.startBtn.addEventListener('click', onStart);
-
-    function onStart() {
-      refs.startBtn.setAttribute('disabled', 'disabled');
-      const intervalId = setInterval(() => {
-        const ms = selectedDates[0].getTime() - Date.now();
-        const { days, hours, minutes, seconds } = convertMs(ms);
-        const isEnd =
-          days === 0 && hours === 0 && minutes === 0 && seconds === 0;
-        refs.days.textContent = addLeadingZero(days.toString());
-        refs.hours.textContent = addLeadingZero(hours.toString());
-        refs.minutes.textContent = addLeadingZero(minutes.toString());
-        refs.seconds.textContent = addLeadingZero(seconds.toString());
-        if (isEnd) {
-          clearInterval(intervalId);
-          Notiflix.Notify.success('Time is over!');
-        }
-      }, 1000);
+      function onStart() {
+        refs.startBtn.setAttribute('disabled', 'disabled');
+        const intervalId = setInterval(() => {
+          const ms = selectedDates[0].getTime() - Date.now();
+          const { days, hours, minutes, seconds } = convertMs(ms);
+          const isEnd =
+            days === 0 && hours === 0 && minutes === 0 && seconds === 0;
+          refs.days.textContent = addLeadingZero(days.toString());
+          refs.hours.textContent = addLeadingZero(hours.toString());
+          refs.minutes.textContent = addLeadingZero(minutes.toString());
+          refs.seconds.textContent = addLeadingZero(seconds.toString());
+          if (isEnd) {
+            clearInterval(intervalId);
+            Notiflix.Notify.success('Time is over!');
+          }
+        }, 1000);
+      }
     }
   },
 };
