@@ -21,6 +21,8 @@ const timer = {
   onClose(selectedDates) {
     let tarrgetDate = selectedDates[0].getTime();
 
+    localStorage.setItem('tarrgetDate', JSON.stringify(tarrgetDate));
+
     if (tarrgetDate < Date.now()) {
       Notiflix.Notify.failure('Please choose a date in the future');
       refs.startBtn.setAttribute('disabled', 'disabled');
@@ -28,22 +30,11 @@ const timer = {
     }
 
     refs.startBtn.removeAttribute('disabled', 'disabled');
-
     refs.startBtn.addEventListener('click', onStart);
-    function onStart() {
-      refs.startBtn.setAttribute('disabled', 'disabled');
-      const intervalId = setInterval(() => {
-        const isEnd = tarrgetDate <= Date.now();
-        if (isEnd) {
-          clearInterval(intervalId);
-          return;
-        }
-        const ms = tarrgetDate - Date.now();
-        const time = convertMs(ms);
+  },
 
-        editInterfase(time);
-      }, 1000);
-    }
+  onOpen() {
+    localStorage.removeItem('tarrgetDate');
   },
 };
 
@@ -75,4 +66,24 @@ function editInterfase({ days, hours, minutes, seconds }) {
   refs.hours.textContent = `${hours}`;
   refs.minutes.textContent = `${minutes}`;
   refs.seconds.textContent = `${seconds}`;
+}
+
+refs.startBtn.addEventListener('click', onStart);
+
+function onStart() {
+  const tarrgetDate = Number(localStorage.getItem('tarrgetDate'));
+  refs.startBtn.setAttribute('disabled', 'disabled');
+
+  const intervalId = setInterval(() => {
+    const isEnd = tarrgetDate <= Date.now();
+    if (isEnd) {
+      clearInterval(intervalId);
+      Notiflix.Notify.success('Time is over!');
+      return;
+    }
+
+    const ms = tarrgetDate - Date.now();
+    const time = convertMs(ms);
+    editInterfase(time);
+  }, 1000);
 }
