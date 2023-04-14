@@ -13,40 +13,41 @@ const refs = {
 
 refs.startBtn.setAttribute('disabled', 'disabled');
 
-const options = {
+const timer = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    if (selectedDates[0].getTime() < Date.now()) {
-      Notiflix.Notify.failure('Please choose a date in the future!');
-    } else {
-      refs.startBtn.removeAttribute('disabled', 'disabled');
-      refs.startBtn.addEventListener('click', onStart);
+    let tarrgetDate = selectedDates[0].getTime();
 
-      function onStart() {
-        refs.startBtn.setAttribute('disabled', 'disabled');
-        const intervalId = setInterval(() => {
-          const ms = selectedDates[0].getTime() - Date.now();
-          const { days, hours, minutes, seconds } = convertMs(ms);
-          const isEnd =
-            days === 0 && hours === 0 && minutes === 0 && seconds === 0;
-          refs.days.textContent = addLeadingZero(days.toString());
-          refs.hours.textContent = addLeadingZero(hours.toString());
-          refs.minutes.textContent = addLeadingZero(minutes.toString());
-          refs.seconds.textContent = addLeadingZero(seconds.toString());
-          if (isEnd) {
-            clearInterval(intervalId);
-            Notiflix.Notify.success('Time is over!');
-          }
-        }, 1000);
-      }
+    if (tarrgetDate < Date.now()) {
+      Notiflix.Notify.failure('Please choose a date in the future');
+      refs.startBtn.setAttribute('disabled', 'disabled');
+      return;
+    }
+
+    refs.startBtn.removeAttribute('disabled', 'disabled');
+
+    refs.startBtn.addEventListener('click', onStart);
+    function onStart() {
+      refs.startBtn.setAttribute('disabled', 'disabled');
+      const intervalId = setInterval(() => {
+        const isEnd = tarrgetDate <= Date.now();
+        if (isEnd) {
+          clearInterval(intervalId);
+          return;
+        }
+        const ms = tarrgetDate - Date.now();
+        const time = convertMs(ms);
+
+        editInterfase(time);
+      }, 1000);
     }
   },
 };
 
-flatpickr(refs.calendar, options);
+flatpickr(refs.calendar, timer);
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -54,19 +55,24 @@ function convertMs(ms) {
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
-
   // Remaining days
-  const days = Math.floor(ms / day);
+  const days = addLeadingZero(Math.floor(ms / day));
   // Remaining hours
-  const hours = Math.floor((ms % day) / hour);
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
   // Remaining minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
   // Remaining seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
-
+  const seconds = addLeadingZero(
+    Math.floor((((ms % day) % hour) % minute) / second)
+  );
   return { days, hours, minutes, seconds };
 }
-
 function addLeadingZero(value) {
-  return value.padStart(2, '0');
+  return String(value).padStart(2, '0');
+}
+function editInterfase({ days, hours, minutes, seconds }) {
+  refs.days.textContent = `${days}`;
+  refs.hours.textContent = `${hours}`;
+  refs.minutes.textContent = `${minutes}`;
+  refs.seconds.textContent = `${seconds}`;
 }
