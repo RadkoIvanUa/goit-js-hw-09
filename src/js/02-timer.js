@@ -71,6 +71,7 @@ function editInterfase({ days, hours, minutes, seconds }) {
 refs.startBtn.addEventListener('click', onStart);
 
 function onStart() {
+  refs.calendar.setAttribute('disabled', 'disabled');
   const tarrgetDate = Number(localStorage.getItem('tarrgetDate'));
   refs.startBtn.setAttribute('disabled', 'disabled');
 
@@ -79,6 +80,7 @@ function onStart() {
     if (isEnd) {
       clearInterval(intervalId);
       Notiflix.Notify.success('Time is over!');
+      refs.calendar.removeAttribute('disabled', 'disabled');
       return;
     }
 
